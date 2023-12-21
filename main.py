@@ -68,6 +68,19 @@ for train_index, test_index in skf.split(X, y):
 avg_accuracy = np.mean(accuracies)
 print(f'Average Accuracy: {avg_accuracy * 100:.2f}%')
 
+# Custom mapping of shorter names for columns
+short_names = {
+    'Pregnancies': 'Preg',
+    'Glucose': 'Gluc',
+    'BloodPressure': 'BP',
+    'SkinThickness': 'Skin',
+    'Insulin': 'Ins',
+    'BMI': 'BMI',
+    'DiabetesPedigreeFunction': 'DPF',
+    'Age': 'Age',
+    'Outcome': 'Outcome'
+}
+
 # Create a Tkinter window
 root = tk.Tk()
 root.title("Diabetes Dataset Visualization")
@@ -127,8 +140,11 @@ def show_pairplot():
 def show_heatmap():
     global current_plot
     clear_plot()
-    plt.figure(figsize=(10, 8))
-    heatmap = sns.heatmap(dataset.corr(), annot=True, cmap='coolwarm', fmt='.2f')
+    plt.figure(figsize=(15, 7))
+    heatmap = sns.heatmap(dataset.corr(), annot=True, cmap='coolwarm', fmt='.2f',
+                          xticklabels=[short_names[col] for col in dataset.columns],
+                          yticklabels=[short_names[col] for col in dataset.columns])
+    plt.text(10.5, 1, 'Preg: Pregnancies\nGluc: Glucose\nBP: BloodPressure\nSkin: SkinThickness\nIns: Insulin\nBMI: BMI\nDPF: DiabetesPedigreeFunction\nAge: Age\nOutcome: Outcome', fontsize=10, va='top')
     plt.title('Correlation Heatmap')
     heatmap_canvas = FigureCanvasTkAgg(plt.gcf(), master=other_graphs_frame)
     heatmap_canvas.draw()
@@ -140,7 +156,7 @@ def show_heatmap():
 def show_histograms():
     global current_plot
     clear_plot()
-    plt.figure(figsize=(10, 8))
+    plt.figure(figsize=(9, 7))
     for i, column in enumerate(dataset.columns[:-1]):
         plt.subplot(3, 3, i + 1)
         sns.histplot(dataset[column], kde=True)
