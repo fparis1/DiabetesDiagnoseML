@@ -122,17 +122,73 @@ def clear_plot():
         current_plot.get_tk_widget().pack_forget()
 
 
+# Function to clear other graphs frame
+def clear_other_graphs_frame():
+    for widget in other_graphs_frame.winfo_children():
+        widget.destroy()
+
+
 # Function to display Pairplot
 def show_pairplot():
     global current_plot
     clear_plot()
-    pairplot = sns.pairplot(dataset, hue='Outcome')
-    pairplot.fig.suptitle('Pairplot of Features')
+    clear_other_graphs_frame()
+    # Selecting a subset of features for pairplot visualization
+    subset_features = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI',
+                       'DiabetesPedigreeFunction', 'Age', 'Outcome']
+    subset_data = dataset[subset_features]
+
+    # Renaming columns to shorten axis labels
+    new_labels = {
+        'Pregnancies': 'Preg',
+        'Glucose': 'Glu',
+        'BloodPressure': 'BP',
+        'SkinThickness': 'Skin',
+        'Insulin': 'Ins',
+        'BMI': 'BMI',
+        'DiabetesPedigreeFunction': 'DPF',
+        'Age': 'Age',
+        'Outcome': 'Outcome'
+    }
+    subset_data = subset_data.rename(columns=new_labels)
+
+    # Adjusting subplot size for the pairplot
+    pairplot = sns.pairplot(subset_data, hue='Outcome', height=0.85, aspect=1.8)
+    pairplot.fig.suptitle('Pairplot of Selected Features')
     pairplot.fig.tight_layout()
     pairplot.fig.subplots_adjust(top=0.95)
+
+    pairplot._legend.remove()
+
+    # Custom legend with updated labels specifying short and long names
+    custom_legend = plt.figure(figsize=(13, 1))
+    handles = []
+    labels = []
+    # Custom legend with updated labels specifying short and long names
+    for long_name, short_name in new_labels.items():
+        if long_name != 'Outcome' and long_name != 'Age' and long_name != 'BMI':
+            handles.append(plt.Line2D([0], [0], linestyle='none', marker='', label=short_name))
+            labels.append(f"{short_name}: {long_name}")
+
+    # Additional handles and labels for Outcome legend
+    handles.extend([
+        plt.Line2D([], [], linestyle='none', marker='o', markersize=5, color='dodgerblue', label='Outcome = 0'),
+        plt.Line2D([], [], linestyle='none', marker='o', markersize=5, color='orange', label='Outcome = 1')
+    ])
+    labels.extend(['Outcome = 0', 'Outcome = 1'])
+
+    plt.legend(handles, labels, loc='center', ncol=4, frameon=False)
+    plt.axis('off')
+
+    # Display the pairplot and the custom legend in the Tkinter frame
     pairplot_canvas = FigureCanvasTkAgg(pairplot.fig, master=other_graphs_frame)
     pairplot_canvas.draw()
     pairplot_canvas.get_tk_widget().pack()
+
+    legend_canvas = FigureCanvasTkAgg(custom_legend, master=other_graphs_frame)
+    legend_canvas.draw()
+    legend_canvas.get_tk_widget().pack()
+
     current_plot = pairplot_canvas
 
 
@@ -140,11 +196,15 @@ def show_pairplot():
 def show_heatmap():
     global current_plot
     clear_plot()
+    clear_other_graphs_frame()
     plt.figure(figsize=(15, 7))
     heatmap = sns.heatmap(dataset.corr(), annot=True, cmap='coolwarm', fmt='.2f',
                           xticklabels=[short_names[col] for col in dataset.columns],
                           yticklabels=[short_names[col] for col in dataset.columns])
-    plt.text(10.5, 1, 'Preg: Pregnancies\nGluc: Glucose\nBP: BloodPressure\nSkin: SkinThickness\nIns: Insulin\nBMI: BMI\nDPF: DiabetesPedigreeFunction\nAge: Age\nOutcome: Outcome', fontsize=10, va='top')
+    plt.text(10.5, 1,
+             'Preg: Pregnancies\nGluc: Glucose\nBP: BloodPressure\nSkin: SkinThickness\nIns: Insulin\nBMI: BMI\nDPF: '
+             'DiabetesPedigreeFunction\nAge: Age\nOutcome: Outcome',
+             fontsize=10, va='top')
     plt.title('Correlation Heatmap')
     heatmap_canvas = FigureCanvasTkAgg(plt.gcf(), master=other_graphs_frame)
     heatmap_canvas.draw()
@@ -156,6 +216,7 @@ def show_heatmap():
 def show_histograms():
     global current_plot
     clear_plot()
+    clear_other_graphs_frame()
     plt.figure(figsize=(9, 7))
     for i, column in enumerate(dataset.columns[:-1]):
         plt.subplot(3, 3, i + 1)
@@ -172,6 +233,7 @@ def show_histograms():
 def show_countplot():
     global current_plot
     clear_plot()
+    clear_other_graphs_frame()
     plt.figure()
     countplot = sns.countplot(x='Outcome', data=dataset)
     plt.title('Distribution of Outcome')
@@ -185,7 +247,7 @@ def show_countplot():
 def show_accuracy_bar_plot():
     global current_plot
     clear_plot()
-
+    clear_other_graphs_frame()
     plt.figure(figsize=(8, 6))
     plt.bar(range(len(accuracies)), accuracies, color='skyblue', edgecolor='black')
 
