@@ -96,7 +96,6 @@ print(f'Average Precision: {avg_precision * 100:.2f}%')
 print(f'Average Recall: {avg_recall * 100:.2f}%')
 print(f'Average F1 Score: {avg_f1 * 100:.2f}%')
 print(f'Average ROC AUC: {avg_roc_auc:.2f}')
-
 # Now, assuming graph_create accepts these metrics, modify the function accordingly
 graph_create(dataset, accuracy_scores, precision_scores, recall_scores,
              f1_scores, conf_matrices, roc_auc_scores, y_test_list, y_pred_prob_list)

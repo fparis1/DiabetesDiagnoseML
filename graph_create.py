@@ -341,6 +341,38 @@ def graph_create(dataset, accuracies, precision_scores, recall_scores, f1_scores
         roc_auc_canvas.draw()
         current_plot = roc_auc_canvas
 
+    def show_confusion_matrices():
+        global current_plot
+        clear_plot()
+        clear_other_graphs_frame()
+
+        num_folds = len(conf_matrices)
+        rows = 2  # Display matrices in 2 rows
+        cols = 5  # Each row will have 5 matrices
+
+        fig, axes = plt.subplots(rows, cols, figsize=(14, 7))
+
+        for i, confusion_matrix in enumerate(conf_matrices):
+            ax = axes[i // cols, i % cols]
+            sns.heatmap(confusion_matrix, annot=True, fmt='d', cmap='Blues', ax=ax)
+            ax.set_title(f'Confusion Matrix - Fold {i + 1}')
+            ax.set_xlabel('Predicted labels')
+            ax.set_ylabel('True labels')
+
+        # Hide any empty subplots if the number of folds is less than expected
+        for i in range(num_folds, rows * cols):
+            ax = axes[i // cols, i % cols]
+            ax.axis('off')
+
+        plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.4, hspace=0.5)
+        plt.tight_layout()
+
+        confusion_matrix_canvas = FigureCanvasTkAgg(fig, master=other_graphs_frame)
+        confusion_matrix_canvas.draw()
+        confusion_matrix_canvas.get_tk_widget().pack()
+
+        current_plot = confusion_matrix_canvas
+
     # Buttons to trigger graph displays
     pairplot_button = tk.Button(button_frame, text="Pairplot", command=show_pairplot)
     pairplot_button.pack(side=tk.LEFT, padx=5, pady=5)
@@ -371,6 +403,9 @@ def graph_create(dataset, accuracies, precision_scores, recall_scores, f1_scores
 
     show_all_roc_auc_button = tk.Button(button_frame, text="Show All ROC AUC Curves", command=show_all_roc_auc_curves)
     show_all_roc_auc_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+    confusion_matrix_button = tk.Button(button_frame, text="Confusion Matrices", command=show_confusion_matrices)
+    confusion_matrix_button.pack(side=tk.LEFT, padx=5, pady=5)
 
     # Run the Tkinter main loop
     root.mainloop()
