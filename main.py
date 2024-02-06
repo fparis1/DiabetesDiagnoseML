@@ -29,13 +29,12 @@ recall_scores = []
 f1_scores = []
 conf_matrices = []
 roc_auc_scores = []
-
 y_test_list = []
 y_pred_prob_list = []
 
 for train_index, test_index in skf.split(X, y):
-    X_train, X_test = X[train_index], X[test_index]  # Features split
-    y_train, y_test = y[train_index], y[test_index]  # Target split
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
 
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(8,)),
@@ -92,4 +91,4 @@ print(f'Average F1 Score: {avg_f1 * 100:.2f}%')
 print(f'Average ROC AUC: {avg_roc_auc:.2f}')
 
 graph_create(dataset, accuracy_scores, precision_scores, recall_scores,
-             f1_scores, conf_matrices, roc_auc_scores, y_test_list, y_pred_prob_list)
+             f1_scores, roc_auc_scores, y_test_list, y_pred_prob_list)
